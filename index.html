@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>استوديو جروب عملاء البنوك المصرية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #050811;
+      --panel-bg: #0d1322;
+      --gold-primary: #d4af37;
+      --gold-light: #fef08a;
+      --text-light: #f8fafc;
+      --border-color: rgba(212, 175, 55, 0.4);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+    body { background-color: var(--bg-dark); color: var(--text-light); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 12px 10px; }
+    
+    /* الهيدر المطور: توسيط "استوديو" وإزالة الدائرة من الصورة */
+    header { 
+      text-align: center; 
+      margin-bottom: 12px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      width: 100%;
+      max-width: 480px;
+      padding: 0 4px;
+    }
+    
+    .header-logo {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      flex-shrink: 0;
+      /* تم إزالة الدائرة والإطار تماماً بناءً على طلبك */
+    }
+
+    .header-title {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      text-align: center;
+    }
+
+    .header-title .line-1 {
+      font-size: 0.95rem;
+      color: var(--gold-light);
+      font-weight: 700;
+      text-align: center; /* توسيط كلمة استوديو في منتصف السطر */
+      width: 100%;
+    }
+
+    .header-title .line-2 {
+      font-size: 1.15rem;
+      color: var(--gold-primary);
+      font-weight: 800;
+      text-align: center;
+    }
+    
+    .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 12px; }
+    
+    /* شاشة العرض السينمائية */
+    .stage-card {
+      background: #000;
+      border: 2px solid var(--gold-primary);
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+      height: 380px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .main-avatar {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    /* نبضات الصوت الجانبية */
+    .side-audio-waves {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 15;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .side-audio-waves.active { opacity: 1; }
+    
+    .wave-bar {
+      width: 20px;
+      height: 4px;
+      background: var(--gold-primary);
+      border-radius: 4px;
+      box-shadow: 0 0 8px var(--gold-primary);
+    }
+    .side-audio-waves.active .wave-bar:nth-child(1) { animation: sidePulse 0.6s infinite ease-in-out alternate; }
+    .side-audio-waves.active .wave-bar:nth-child(2) { animation: sidePulse 0.8s infinite ease-in-out alternate 0.2s; }
+    .side-audio-waves.active .wave-bar:nth-child(3) { animation: sidePulse 0.5s infinite ease-in-out alternate 0.4s; }
+    .side-audio-waves.active .wave-bar:nth-child(4) { animation: sidePulse 0.7s infinite ease-in-out alternate 0.1s; }
+
+    @keyframes sidePulse {
+      0% { width: 10px; background: var(--gold-primary); }
+      100% { width: 32px; background: #ffffff; }
+    }
+
+    .control-card {
+      background: var(--panel-bg);
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    label { font-size: 0.82rem; color: var(--gold-light); font-weight: 700; }
+
+    select, input[type="range"] {
+      width: 100%;
+      background: #070b14;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 10px;
+      color: #fff;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .sliders-row {
+      display: flex;
+      gap: 10px;
+      background: rgba(0,0,0,0.3);
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(212,175,55,0.2);
+    }
+
+    .upload-btn-custom {
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px dashed var(--gold-primary);
+      color: var(--gold-light);
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 0.82rem;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .thumb-strip-container {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 0;
+      scroll-behavior: smooth;
+    }
+    .thumb-strip-container::-webkit-scrollbar { height: 4px; }
+    .thumb-strip-container::-webkit-scrollbar-thumb { background: var(--gold-primary); border-radius: 4px; }
+
+    .thumb-item {
+      width: 58px;
+      height: 58px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 2px solid #334155;
+      cursor: pointer;
+      flex-shrink: 0;
+      opacity: 0.6;
+      transition: all 0.2s;
+    }
+    .thumb-item.active {
+      border-color: var(--gold-primary);
+      opacity: 1;
+      box-shadow: 0 0 10px rgba(212,175,55,0.5);
+      transform: scale(1.05);
+    }
+
+    textarea {
+      width: 100%;
+      background: #070b14;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 10px;
+      color: #fff;
+      font-size: 0.88rem;
+      outline: none;
+      height: 120px;
+      resize: vertical;
+    }
+    textarea:focus { border-color: var(--gold-primary); }
+
+    .word-counter { font-size: 0.75rem; color: #94a3b8; text-align: left; }
+
+    .btn-group { display: flex; gap: 8px; }
+
+    .btn-primary {
+      flex: 2;
+      background: linear-gradient(135deg, #d4af37, #996515);
+      color: #000;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(212,175,55,0.3);
+    }
+
+    .btn-secondary {
+      flex: 1;
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid #334155;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .hashtags-footer {
+      margin-top: 8px;
+      font-size: 0.72rem;
+      color: #94a3b8;
+      text-align: center;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- الهيدر المحدث -->
+  <header>
+    <div style="width: 52px;"></div> <!-- مساحة مطابقة لتوازن المنتصف -->
+    <div class="header-title">
+      <span class="line-1">استوديو</span>
+      <span class="line-2">جروب عملاء البنوك المصرية</span>
+    </div>
+    <img src="image.png" alt="اللوجو" class="header-logo">
+  </header>
+
+  <div class="container">
+    <div class="stage-card">
+      <img id="myAvatar" class="main-avatar" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80" alt="المحلل المالي">
+
+      <!-- نبضات الصوت الجانبية -->
+      <div class="side-audio-waves" id="sideWaves">
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="form-group">
+        <label class="upload-btn-custom" for="fileUploader">
+          📷 رفع صورة أو مجموعة صور للخبر من الموبايل
+          <input type="file" id="fileUploader" accept="image/*" multiple style="display:none;" onchange="uploadMultipleImages(event)">
+        </label>
+        
+        <div class="thumb-strip-container" id="thumbStrip" style="display: none;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="voiceSelect">🎙️ اختر الصوت (ماجد / طارق / الأصوات المتاحة):</label>
+        <select id="voiceSelect"></select>
+      </div>
+
+      <div class="sliders-row">
+        <div class="form-group" style="flex:1;">
+          <label>⚡ السرعة: <span id="rateLabel">0.85x</span></label>
+          <input type="range" id="rateInput" min="0.5" max="1.5" step="0.05" value="0.85" oninput="document.getElementById('rateLabel').textContent=this.value+'x'">
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>🎼 النبرة: <span id="pitchLabel">0.90</span></label>
+          <input type="range" id="pitchInput" min="0.5" max="1.5" step="0.05" value="0.90" oninput="document.getElementById('pitchLabel').textContent=this.value">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="scriptText">✦ نص التحليل المالي (حتى 2000 كلمة):</label>
+        <textarea id="scriptText" oninput="updateWordCount()">أهلاً بكم في تحليل لاعضاء الجروب. نستعرض اليوم أحدث مستجدات القطاع المصرفي، مؤشرات أذون الخزانة المصرية، وعطاءات البنك المركزي المصري برؤية تحليلية متكاملة تهم كل عملاء البنوك.</textarea>
+        <div class="word-counter" id="wordCounter">عدد الكلمات: 29 / 2000</div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn-primary" onclick="playSpeech()">🔊 تشغيل الصوت المباشر</button>
+        <button class="btn-secondary" onclick="stopSpeech()">⏹️ إيقاف</button>
+      </div>
+    </div>
+
+    <div class="hashtags-footer">
+      #جروب_عملاء_البنوك_المصرية<br>
+      جروب عملاء البنوك المصرية<br>
+      #بنوك #بورصة #اقتصاد #مال_وأعمال #مال_وتجارة #بنك_مركزي
+    </div>
+  </div>
+
+  <script>
+    const myAvatar = document.getElementById('myAvatar');
+    const sideWaves = document.getElementById('sideWaves');
+    const thumbStrip = document.getElementById('thumbStrip');
+    const voiceSelect = document.getElementById('voiceSelect');
+    let systemVoices = [];
+
+    function uploadMultipleImages(event) {
+      const files = event.target.files;
+      if (files && files.length > 0) {
+        thumbStrip.innerHTML = '';
+        thumbStrip.style.display = 'flex';
+
+        Array.from(files).forEach((file, index) => {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const imgSrc = e.target.result;
+
+            if (index === 0) {
+              switchMainImage(imgSrc);
+            }
+
+            const thumb = document.createElement('img');
+            thumb.src = imgSrc;
+            thumb.className = `thumb-item ${index === 0 ? 'active' : ''}`;
+            thumb.onclick = function() {
+              document.querySelectorAll('.thumb-item').forEach(t => t.classList.remove('active'));
+              thumb.classList.add('active');
+              switchMainImage(imgSrc);
+            };
+            thumbStrip.appendChild(thumb);
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+    }
+
+    function switchMainImage(src) {
+      myAvatar.style.opacity = '0.3';
+      setTimeout(() => {
+        myAvatar.src = src;
+        myAvatar.style.opacity = '1';
+      }, 150);
+    }
+
+    function updateWordCount() {
+      const text = document.getElementById('scriptText').value;
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      document.getElementById('wordCounter').textContent = `عدد الكلمات: ${words} / 2000`;
+    }
+
+    function loadSystemVoices() {
+      if (!('speechSynthesis' in window)) return;
+      
+      systemVoices = window.speechSynthesis.getVoices();
+      voiceSelect.innerHTML = '';
+
+      if (systemVoices.length > 0) {
+        systemVoices.forEach((v) => {
+          const option = document.createElement('option');
+          option.value = v.name;
+          option.textContent = `🎙️ ${v.name} (${v.lang})`;
+          voiceSelect.appendChild(option);
+        });
+      } else {
+        const option = document.createElement('option');
+        option.textContent = "🎙️ الصوت المباشر للجهاز";
+        voiceSelect.appendChild(option);
+      }
+    }
+
+    function playSpeech() {
+      let text = document.getElementById('scriptText').value;
+      if (!text.trim()) return;
+
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+
+        if (systemVoices.length === 0) {
+          systemVoices = window.speechSynthesis.getVoices();
+        }
+
+        if (voiceSelect.value && systemVoices.length > 0) {
+          const chosen = systemVoices.find(v => v.name === voiceSelect.value);
+          if (chosen) {
+            utterance.voice = chosen;
+            utterance.lang = chosen.lang || 'ar-EG';
+          } else {
+            utterance.lang = 'ar-EG';
+          }
+        } else {
+          utterance.lang = 'ar-EG';
+        }
+
+        utterance.rate = parseFloat(document.getElementById('rateInput').value);
+        utterance.pitch = parseFloat(document.getElementById('pitchInput').value);
+
+        utterance.onstart = () => {
+          sideWaves.classList.add('active');
+        };
+
+        utterance.onend = () => {
+          sideWaves.classList.remove('active');
+        };
+
+        utterance.onerror = () => {
+          sideWaves.classList.remove('active');
+        };
+
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function stopSpeech() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        sideWaves.classList.remove('active');
+      }
+    }
+
+    if ('speechSynthesis' in window) {
+      loadSystemVoices();
+      window.speechSynthesis.onvoiceschanged = loadSystemVoices;
+    }
+  </script>
+</body>
+</html>
